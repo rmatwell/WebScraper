@@ -13,7 +13,7 @@ public class App {
 
     public static void main(String[] args){
         final String url =
-                "https://www.microcenter.com/search/search_results.aspx?N=4294966937&NTK=all&sortby=match&rpp=24";
+                "https://www.microcenter.com/search/search_results.aspx?N=4294966937&NTK=all&sortby=match&rpp=96";
         final String rootURL = "https://www.microcenter.com";
 
         try {
@@ -22,29 +22,28 @@ public class App {
                     .userAgent("Mozilla")
                     .referrer("https://www.google.com")
                     .cookie("auth", "token")
-                    .timeout(3000)
+                    .timeout(10000)
                     .get();
 
             for(Element listing: document.select(
                     "li.product_wrapper"
             )){
                 String name = listing.select("li.product_wrapper h2").text();
-                String sku = listing.select("p.sku").text();
-                String price = listing.select("div.price").text();
+                String price = listing.select("span[itemprop]").text();
                 String relativeURL = listing.select("a.image").attr("href");
                 String absoluteURL = rootURL + "" + relativeURL;
-                Document doc = Jsoup.connect(absoluteURL)
+                final Document doc = Jsoup.connect(absoluteURL)
                         .followRedirects(true)
                         .userAgent("Mozilla")
                         .referrer("https://www.google.com")
                         .cookie("auth", "token")
-                        .timeout(3000)
+                        .timeout(10000)
                         .get();
 
-                String sk = doc.select("div.inline h1 span").text();
+                String partNum = doc.select("div:containsOwn(Mfr) + div").text();
+                String chipSet = doc.select("div:containsOwn(GPU Chipset) + div").text();
 
-                System.out.println(sk);
-                //System.out.println(name + "  -  " + sku + "  -  " + price + "  -  " + absoluteURL);
+                System.out.println(partNum  + "  -  " + chipSet + "  -  " + price + "  -  " + absoluteURL);
             }
         }
         catch (Exception ex) {
