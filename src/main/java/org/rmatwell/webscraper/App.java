@@ -13,7 +13,8 @@ public class App {
 
     public static void main(String[] args){
         final String url =
-                "https://www.microcenter.com/search/search_results.aspx?N=4294966937&rpp=96&sortby=pricehigh&NTK=all&page=";
+                "https://www.microcenter.com/search/search_results.aspx?N=4294966937&rpp=96&myStore=false" +
+                        "&sortby=pricehigh&NTK=all&page=";
 
         final String rootURL = "https://www.microcenter.com";
 
@@ -22,7 +23,6 @@ public class App {
         int count = 0;
         boolean arePagesChecked = false;
         try {
-
 
             while(pages >= checkedPage){
                 String urlPage = url + checkedPage;
@@ -37,24 +37,30 @@ public class App {
 
             if(!arePagesChecked){
                 String s = document.select("p.status").text();
+                System.out.println(s);
                 pages = getPages(s);
                 arePagesChecked = true;
             }
 
             for(Element listing: document.select(
                     "li.product_wrapper"
-            )) {
-                String name = listing.select("li.product_wrapper h2").text();
-                Element priceLink = listing.select("a.image").first();
 
+            )) {
+
+                Element priceLink = listing.select("a[class^=image]").first();
+                System.out.println(count);
                 assert priceLink != null;
                 if(priceLink.attr("data-price").isEmpty()){
                    continue;
                 }
 
+                String brand = listing.select("a[class^=image]").attr("data-brand");
+                System.out.println(brand);
                 double price = Double.parseDouble(priceLink.attr("data-price"));
-                String relativeURL = listing.select("a.image").attr("href");
+                System.out.println(price);
+                String relativeURL = listing.select("a[class^=image]").attr("href");
                 String absoluteURL = rootURL + "" + relativeURL;
+                System.out.println(absoluteURL);
                 final Document doc = Jsoup.connect(absoluteURL)
                         .followRedirects(true)
                         .userAgent("Mozilla")
@@ -65,9 +71,10 @@ public class App {
 
                 assert doc != null;
                 String partNum = doc.select("div:containsOwn(Mfr) + div").text();
+                System.out.println(partNum);
                 String chipSet = doc.select("div:containsOwn(GPU Chipset) + div").text();
-
-                Listing list = new Listing(name, chipSet, count++, price, partNum);
+                System.out.println(chipSet);
+                Listing list = new Listing(count++, partNum, brand, price, chipSet, absoluteURL);
                 listings.add(list);
                 doc.empty();
             }
@@ -77,6 +84,9 @@ public class App {
             for(Listing l: listings){
                 System.out.println(l.toString());
             }
+            CSVReport report = new CSVReport("sample.csv");
+            report.writeDataAtOnce(listings);
+
         }
         catch (Exception ex) {
             ex.printStackTrace();
@@ -98,7 +108,6 @@ public class App {
         if(itemsPerPage >= items){
             return 1;
         }
-        //Rounded up to capture correct number of pages
         int pages = (int) Math.ceil((double)items / itemsPerPage);
 
         return pages;

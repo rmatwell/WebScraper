@@ -1,7 +1,14 @@
 plugins {
     id 'java'
     id 'application'
+    id 'java-library'
 }
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 
 group 'org.rmatwell.webscraper'
 version '1.0-SNAPSHOT'
@@ -10,12 +17,11 @@ repositories {
     mavenCentral()
  }
 
+
 dependencies {
 
-    // jsoup HTML parser library @ https://jsoup.org/
     implementation 'org.jsoup:jsoup:1.15.3'
-
-
+    implementation 'com.opencsv:opencsv:5.7.1'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'

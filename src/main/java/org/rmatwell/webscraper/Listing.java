@@ -1,21 +1,28 @@
 package org.rmatwell.webscraper;
 
+import java.io.Serializable;
+
 /**
  * @author Richard Atwell
  */
-public class Listing {
+
+public class Listing implements Serializable {
 
     private String model;
     private String chipSet;
     private int id;
     private double price;
+    private String brand;
     private String url;
 
-    public Listing(String model, String chipSet, int id, double price, String url) {
+    public Listing(){}
+
+    public Listing(int id, String model, String brand, double price, String chipSet, String url) {
         this.model = model;
         this.chipSet = chipSet;
         this.id = id;
         this.price = price;
+        this.brand = brand;
         this.url = url;
     }
 
@@ -51,6 +58,16 @@ public class Listing {
         this.price = price;
     }
 
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+
     public String getUrl() {
         return url;
     }
@@ -61,7 +78,19 @@ public class Listing {
 
     @Override
     public String toString() {
-       String s = (id + "  -  " + price + "  -  " + chipSet + " - " + model +  "  -  " + url);
-        return s;
+        StringBuilder sb = new StringBuilder();
+        appendVal(sb, String.valueOf(id));
+        appendVal(sb, model);
+        appendVal(sb, chipSet);
+        appendVal(sb, String.valueOf(price));
+        appendVal(sb, brand);
+        appendVal(sb, url);
+
+        return sb.toString();
+    }
+
+    private void appendVal(StringBuilder sb, String value) {
+        if(value != null) { sb.append(value).append(","); }
+        else { sb.append(","); }
     }
 }
